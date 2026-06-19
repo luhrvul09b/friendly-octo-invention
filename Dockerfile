@@ -24,4 +24,4 @@ COPY ws-proxy.py /app/ws-proxy.py
 EXPOSE 8080
 
 # Script aur Cloudflare Quick Tunnel ek sath start karne ke liye
-CMD service ssh start && python3 /app/ws-proxy.py & cloudflared tunnel --url http://localhost:8080
+CMD service ssh start && python3 -u /app/ws-proxy.py & cloudflared tunnel --url http://localhost:8080
