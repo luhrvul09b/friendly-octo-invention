@@ -1,13 +1,12 @@
 import socket
 import threading
 import select
-import os
 
 def handle_client(client_socket):
     try:
         request = client_socket.recv(4096).decode('utf-8', errors='ignore')
         if "Upgrade: websocket" in request or "HTTP/1.1" in request:
-            # Pure 101 WebSocket Handshake response
+            # Sshmax jaisa direct response bina kisi 301 ke
             response = (
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Upgrade: websocket\r\n"
@@ -15,7 +14,7 @@ def handle_client(client_socket):
             )
             client_socket.sendall(response.encode())
             
-            # Local SSH Port 22 se connect karein
+            # Local SSH Port 22
             ssh_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             ssh_socket.connect(('127.0.0.1', 22))
             
@@ -38,13 +37,11 @@ def handle_client(client_socket):
         client_socket.close()
 
 def main():
-    # Railway ka assigned port uthaein ya default 8080 use karein
-    port = int(os.environ.get("PORT", 8080))
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(('0.0.0.0', port))
-    server.listen(300)
-    print(f"Railway SSH WS Proxy running on port {port}...")
+    server.bind(('0.0.0.0', 8080))
+    server.listen(500)
+    print("Sshmax style proxy running on port 8080...")
     while True:
         try:
             client, _ = server.accept()
