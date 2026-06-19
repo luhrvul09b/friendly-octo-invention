@@ -11,17 +11,17 @@ RUN mkdir /var/run/sshd
 RUN echo 'root:password123' | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
-
-# SSH User Create Karein
 RUN useradd -m -s /bin/bash yomi && echo "yomi:password123" | chpasswd
 
-# Cloudflared (Cloudflare Tunnel) Install karein
-RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared && chmod +x /usr/local/bin/cloudflared
+# Ngrok Install karein
+RUN curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.p9/ngrok.asc >/dev/null \
+    && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list \
+    && apt-get update && apt-get install ngrok -y
 
 WORKDIR /app
 COPY ws-proxy.py /app/ws-proxy.py
 
 EXPOSE 8080
 
-# Script aur Cloudflare Quick Tunnel ek sath start karne ke liye
-CMD service ssh start && python3 -u /app/ws-proxy.py & cloudflared tunnel --url http://localhost:8080
+# NGROK_TOKEN ko hum Railway variables se uthaein ge
+CMD service ssh start && python3 /app/ws-proxy.py & ngrok tcp 8080 --authtoken $NGROK_TOKEN
